@@ -12,7 +12,9 @@ app.get('/', (req, res) => {
     res.send('Hello World!');
 });
 
-app.get('/getrollnumbers',async (req, res) => {
+app.get('/getrollnumber',async (req, res) => {
+
+    console.log("Getting Roll Number");
 
     let rollNumbers = await prisma.student.findMany({
         where: {
@@ -24,83 +26,25 @@ app.get('/getrollnumbers',async (req, res) => {
         select: {
             roll_number: true,
         },
-        take: 2, 
+        take: 1, 
     });
 
     async function changeToProcessing(rollNumbers) {
         for (let rollNumber of rollNumbers) {
             await prisma.student.update({
-                where: { roll_number: rollNumber },
+                where: { roll_number: rollNumber.roll_number },
                 data: { status: "processing" }
             });
         }
     }
 
     changeToProcessing(rollNumbers);
-    res.send(rollNumbers);
-
-});
-
-app.get('/getrollnumbers5',async (req, res) => {
-
-    let rollNumbers = await prisma.student.findMany({
-        where: {
-          status: "pending",
-        },
-        orderBy: {
-          updatedAt: "asc",
-        },
-        select: {
-            roll_number: true,
-        },
-        take: 5, 
-    });
-
-    async function changeToProcessing(rollNumbers) {
-        for (let rollNumber of rollNumbers) {
-            await prisma.student.update({
-                where: { roll_number: rollNumber },
-                data: { status: "processing" }
-            });
-        }
-    }
-
-    changeToProcessing(rollNumbers);
-    res.send(rollNumbers);
-
-});
-
-app.get('/getrollnumbers10',async (req, res) => {
-
-    let rollNumbers = await prisma.student.findMany({
-        where: {
-          status: "pending",
-        },
-        orderBy: {
-          updatedAt: "asc",
-        },
-        select: {
-            roll_number: true,
-        },
-        take: 10, 
-    });
-
-    async function changeToProcessing(rollNumbers) {
-        for (let rollNumber of rollNumbers) {
-            await prisma.student.update({
-                where: { roll_number: rollNumber },
-                data: { status: "processing" }
-            });
-        }
-    }
-
-    changeToProcessing(rollNumbers);
-    res.send(rollNumbers);
+    res.send(rollNumbers[0]);
 
 });
 
 app.post('/postpassword',async (req, res) => {
-
+    console.log(req.body);
     const { roll_number, password } = req.body;
 
     await prisma.student.update({
@@ -144,6 +88,8 @@ app.get('/getcount',async (req, res) => {
 });
 
 app.get('/changestatus', async (req, res) => {
+
+    console.log("Changing Status");
     await prisma.student.updateMany({
         where: {
             status: "processing"
@@ -152,6 +98,7 @@ app.get('/changestatus', async (req, res) => {
             status: "pending"
         }
     });
+    res.send("Done");
 });
 
 app.listen(port, () => {
