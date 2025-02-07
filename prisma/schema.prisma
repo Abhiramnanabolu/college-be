@@ -1,0 +1,37 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+model Student {
+  roll_number         String  @id
+  status              String  @default("pending") // Allowed: "pending", "processing", "completed"
+  startYear           Int     @default(2021)
+  password            String? // Store only hashed passwords
+  remarks             String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // One-to-One relation with StudentData (relation defined in StudentData model)
+  studentData         StudentData?
+}
+
+model StudentData {
+  roll_number         String  @id @unique
+  name                String
+  department          String
+  sem                 String
+  sem_data            Json?
+
+  // Define the relationship here
+  student             Student @relation(fields: [roll_number], references: [roll_number])
+}
